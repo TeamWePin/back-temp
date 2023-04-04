@@ -1,0 +1,77 @@
+# 동적으로 생성되는 데이터베이스 관련 Bean들의 속성을 모아둔 yml 파일
+# 속성값들은 DataSourceBeanFactoryPostProcessor 클래스, BeanDefinitionBuilder.genericBeanDefinition() 메서드의 파라미터로 던져주는 클래스를 참고할 수 있음
+# yml 파일에 추가되지 않은 속성은 builder.addPropertyValue("key", value); 메서드를 DatabaseBeanRegisterHelper 에 추가시켜야 동작함
+#
+# 각 속성과 매칭되는 POJO (MyBatisProperties, DataSourceMeta 등) 의 소스코드를 보면 필드들이 나열되어 있음
+# 해당 필드에 디폴트로 값이 잡혀 있는 경우 그 값이 라이브러리 디폴트 값임
+
+# SqlSessionFactory 설정을 건드림
+mybatis:
+  typeAliasesPackage: com.hanteo.common.database
+  configLocation: classpath:/mybatis-config.xml
+  mapperLocations:
+    - classpath*:/mapper/*.xml
+    - classpath*:com/hanteo/common/database/**/*Mapper.xml
+    - classpath*:com/hanteo/domain/**/*Mapper.xml
+    - classpath*:com/hanteo/domain/**/*MapperV4.xml
+  failFast: true
+  plugins:
+    slowQueryTime: 100000
+
+# 트랜잭션 설정을 건드림, 이 설정은 BasicDatabaseConfiguration 클래스의 customUserTransactionService 메서드에서 처리함
+atomikos:
+  com.atomikos.icatch.service: com.atomikos.icatch.standalone.UserTransactionServiceFactory
+  com.atomikos.icatch.max_timeout: 300000
+  com.atomikos.icatch.default_jta_timeout: 100000
+  com.atomikos.icatch.max_actives: 350
+  com.atomikos.icatch.enable_logging: true
+  com.atomikos.icatch.serial_jta_transactions: true
+  com.atomikos.icatch.force_shutdown_on_vm_exit: false
+  com.atomikos.icatch.checkpoint_interval: 500
+  com.atomikos.icatch.threaded_2pc: true
+
+# 멀티 데이터소스를 등록하는 부분
+# DataSourceBeanFactoryPostProcessor 및 DataSourceMeta 클래스의 주석을 해제하면 다른 속성도 입력이 가능함
+# 설정이 되어있지 않은 값들은 DataSourceMeta 클래스에 기본값이 설정되어 있을 수도 있음, 확인바람
+#
+# xaDataSourceClassName 기재 시 XA 데이터소스로 등록됨
+# driverClassName 기재 시 Non-XA 데이터소스로 등록됨
+
+dataSourceMetaMap:
+  hanteoMeta:
+    xaDataSourceClassName: com.mysql.cj.jdbc.MysqlXADataSource
+    user: HanteoAdmin
+    password: hanteo1004
+    head: jdbc:mysql://
+    addr: @hanteo.database.addr.hanteoMeta@
+    port: 3306
+    tail: /?characterEncoding=utf8&useUnicode=true&allowMultiQueries=true
+    minPoolSize: 0
+    maxPoolSize: 4
+    maintenanceInterval: 60
+
+  hanteoMetaNonXA:
+    driverClassName: com.mysql.cj.jdbc.Driver
+    user: HanteoAdmin
+    password: hanteo1004
+    head: jdbc:mysql://
+    addr: @hanteo.database.addr.hanteoMeta@
+    port: 3306
+    tail: /?characterEncoding=utf8&useUnicode=true&allowMultiQueries=true
+    minPoolSize: 0
+    maxPoolSize: 4
+    maintenanceInterval: 60
+
+  # 차트 테스트 DB는 hanteochart. 구분자를 갖는다... 실서버는 hanteo-v3 이다. 미안하다 혼돈을 주어서....ㅋ
+
+  hanteoChart:
+    driverClassName: com.mysql.cj.jdbc.Driver
+    user: HanteoAdmin
+    password: hanteo1004
+    head: jdbc:mysql://
+    addr: @hanteo.database.addr.hanteoChart@
+    port: 3306
+    tail: /?characterEncoding=utf8&useUnicode=true&allowMultiQueries=true&serverTimezone=UTC
+    minPoolSize: 0
+    maxPoolSize: 25
+    maintenanceInterval: 60

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <!-- 콘솔에 출력 -->
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- 파일에 출력 -->
+    <property name="LOG_HOME" value="${user.home}/app/logs"/>
+    <!--<property name="LOG_HOME" value="C:/Users/user/logs"/>-->
+    <appender name="ROLLING" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_HOME}/log.txt</file>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+
+        <!-- 일자별로 로그파일 적용하기 -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_HOME}/log_%d{yyyyMMdd, UTC}_%i.gz</fileNamePattern>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>500MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+            <maxHistory>7</maxHistory> <!-- 일자별 백업파일의 보관기간 -->
+        </rollingPolicy>
+    </appender>
+
+    <!-- 정의된 appender(파일 혹은 표준 출력)에 로그를 남기겠다 -->
+    <springProfile name="local">
+        <root level="info">
+<!--            <appender-ref ref="ROLLING" />-->
+            <appender-ref ref="STDOUT" />
+        </root>
+    </springProfile>
+    <springProfile name="dev">
+        <root level="info">
+            <appender-ref ref="ROLLING" />
+            <appender-ref ref="STDOUT" />
+        </root>
+    </springProfile>
+    <springProfile name="real">
+        <root level="warn">
+            <appender-ref ref="ROLLING" />
+<!--            <appender-ref ref="STDOUT" />-->
+        </root>
+    </springProfile>
+
+    <!--프로젝트가 실행된 정보(자바 버전, IP, PID 및 현재 스프링 프로필) 및 프로젝트가 Deploy된 시간을 표시함-->
+    <logger name="@gradle.project.ext.mainClassName@" level="info" />
+</configuration>

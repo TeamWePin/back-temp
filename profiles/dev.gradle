@@ -1,0 +1,8 @@
+project.ext.filter = [
+        'hanteo.redis.host.auth': '---',
+        'hanteo.redis.host.meta': '---',
+        'hanteo.redis.host.user': '---',
+
+        'hanteo.database.addr.hanteoMeta': '---',
+        'hanteo.database.addr.hanteoChart': '---'
+]

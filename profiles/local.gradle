@@ -1,0 +1,5 @@
+project.apply from: "${projectDir}/profiles/dev.gradle"
+
+project.ext.filter.putAll([
+//        'hanteo.reststub.url.process-meta': 'http://localhost:8080'
+])
